@@ -34,12 +34,12 @@ model Client {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   createdBy String
-  updatedBy String
+  updatedBy String?
 
   clientName        String  @unique
   clientEmail       String
   clientPhoneNumber String
-  Address           String?
+  address           String?
   User              User[]
 
   @@map("clients")

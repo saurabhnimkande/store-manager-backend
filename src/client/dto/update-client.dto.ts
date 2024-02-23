@@ -1,6 +1,6 @@
 import { IsEmail, IsOptional, IsString } from 'class-validator';
 
-export class EditClientDto {
+export class UpdateClientDto {
   @IsString()
   @IsOptional()
   clientName: string;
@@ -15,5 +15,9 @@ export class EditClientDto {
 
   @IsString()
   @IsOptional()
-  Address: string;
+  address: string;
+
+  @IsString()
+  @IsOptional()
+  updatedBy: string;
 }

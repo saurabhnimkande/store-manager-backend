@@ -16,5 +16,13 @@ export class CreateClientDto {
 
   @IsString()
   @IsOptional()
-  Address: string;
+  address: string;
+
+  @IsString()
+  @IsNotEmpty()
+  createdBy: string;
+
+  @IsString()
+  @IsOptional()
+  updatedBy: string;
 }
