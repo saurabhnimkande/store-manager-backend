@@ -14,17 +14,17 @@ model User {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  createdBy String
-  updatedBy String
+  createdBy String?
+  updatedBy String?
 
-  email       String   @unique
+  email       String  @unique
   hash        String
   firstName   String
   lastName    String?
   phoneNumber String
   clientId    Int
-  client      Client   @relation(fields: [clientId], references: [id])
-  roles       String[]
+  client      Client  @relation(fields: [clientId], references: [id])
+  roles       Int[]
 
   @@map("users")
 }
