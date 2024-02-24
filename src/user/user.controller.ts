@@ -1,6 +1,7 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto, SigninUserDto } from './dto';
+import { JwtGuard } from './guard';
 
 @Controller('user')
 export class UserController {
@@ -15,7 +16,8 @@ export class UserController {
     return this.userService.signinUser(dto);
   }
 
-  @Get('all-users')
+  @UseGuards(JwtGuard)
+  @Get('all')
   getAllUsers() {
     return this.userService.getAllUsers();
   }

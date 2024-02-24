@@ -3,10 +3,16 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as argon from 'argon2';
 import { CreateUserDto, SigninUserDto } from './dto';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private jwt: JwtService,
+    private config: ConfigService,
+  ) {}
   async createUser(dto: CreateUserDto) {
     try {
       const hash = await argon.hash(dto.password);
@@ -17,7 +23,7 @@ export class UserService {
           hash,
         },
       });
-      return user;
+      return this.signToken(user.id, user.email);
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
@@ -43,13 +49,52 @@ export class UserService {
 
       if (!pwMatches) throw new ForbiddenException('Credentials incorrect');
 
-      return user;
+      return this.signToken(user.id, user.email);
     } catch (error) {
       throw error;
     }
   }
+
   async getAllUsers() {
-    const users = await this.prisma.user.findMany({});
-    return users;
+    try {
+      const users = await this.prisma.user.findMany({
+        select: {
+          id: true,
+          createdAt: true,
+          updatedAt: true,
+          createdBy: true,
+          updatedBy: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          phoneNumber: true,
+          clientId: true,
+          roles: true,
+        },
+      });
+      return users;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async signToken(
+    userId: number,
+    email: string,
+  ): Promise<{ access_token: string }> {
+    const payload = {
+      sub: userId,
+      email,
+    };
+
+    const secret = this.config.get('JWT_SECRET');
+
+    const token = await this.jwt.signAsync(payload, {
+      secret: secret,
+    });
+
+    return {
+      access_token: token,
+    };
   }
 }
